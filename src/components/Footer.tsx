@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-lg font-bold">Carte Pro Studio</h3>
+            <h3 className="text-lg font-bold">Card Maker App</h3>
             <p className="text-gray-600 text-sm">
               Créez vos cartes d'identité professionnelles en ligne en quelques clics.
             </p>
@@ -31,13 +31,13 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-medium mb-4">Contact</h3>
             <ul className="space-y-2">
-              <li className="text-gray-600 text-sm">support@carteprostudio.com</li>
-              <li className="text-gray-600 text-sm">+33 1 23 45 67 89</li>
+              <li className="text-gray-600 text-sm">mbarukumosambyabando@gmail.com</li>
+              <li className="text-gray-600 text-sm">+243 844 593 400 / +243 817 748 941</li>
             </ul>
           </div>
         </div>
         <div className="border-t mt-8 pt-8 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} Carte Pro Studio. Tous droits réservés.
+          © {new Date().getFullYear()} Card Maker App. Tous droits réservés.
         </div>
       </div>
     </footer>

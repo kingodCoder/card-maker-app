@@ -24,7 +24,7 @@ const Navigation = () => {
               <path d="M7 13h10" />
               <circle cx="12" cy="9" r="2" />
             </svg>
-            <span>Carte Pro Studio</span>
+            <span>Card Maker App</span>
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-6">
