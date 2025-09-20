@@ -89,7 +89,7 @@ const Index = () => {
                 <h2 className="text-2xl md:text-3xl font-bold mb-4">Prêt à simplifier la création de vos cartes professionnelles ?</h2>
                 <p className="mb-8">Inscrivez-vous gratuitement et commencez à créer en quelques minutes.</p>
                 <Link to="/register">
-                  <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-brand-600">
+                  <Button size="lg" variant="outline" className="text-primary border-white hover:bg-primary hover:text-white">
                     Commencer gratuitement
                   </Button>
                 </Link>

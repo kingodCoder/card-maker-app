@@ -9,6 +9,11 @@ type CardPreviewProps = {
   photo: string | null;
   logo: string | null;
   showQrCode: boolean;
+  etablissement: string;
+  birthday: string;
+  birthplace: string;
+  matricule: string;
+  no: number;
 };
 
 const CardPreview = ({
@@ -19,11 +24,18 @@ const CardPreview = ({
   photo,
   logo,
   showQrCode,
+  etablissement,
+  birthday,
+  birthplace,
+  matricule,
+  no
 }: CardPreviewProps) => {
   // Rendu conditionnel basé sur le modèle sélectionné
   const renderCard = () => {
     const fullName = `${firstName || "Prénom"} ${lastName || "Nom"}`;
     const displayPosition = position || "Poste / Fonction";
+    const birth = `{birthplace||"Lieu"},{birthday||" et Date de naissance"}`;
+    const matri = `{etablissement.length>5?etablissement.substring(0,5):etablissement}-{no?no:"00"}`;
 
     switch (template) {
       case "standard":
@@ -125,7 +137,97 @@ const CardPreview = ({
             )}
           </div>
         );
-      default:
+      case "modern":
+        return (
+          <div className="w-full h-56 bg-blue-700 text-white rounded-xl overflow-hidden shadow-lg flex flex-col">
+            {/* --- Bandeau tricolore --- */}
+            <div className="grid grid-cols-3 h-3">
+              <div className="bg-blue-600"></div>
+              <div className="bg-yellow-400"></div>
+              <div className="bg-red-500"></div>
+            </div>
+
+            {/* --- Logo + bannière --- */}
+            <div className="flex items-center justify-center mt-3 space-x-2 px-4">
+              {logo ? (
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="w-20 h-20 rounded-full bg-white p-1 object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-blue-800 rounded-full flex items-center justify-center text-xs">
+                  LOGO
+                </div>
+              )}
+              <div className="flex-1 h-8 bg-blue-800 rounded-md"></div>
+            </div>
+
+            {/* --- Infos élève + QR + Photo --- */}
+            <div className="flex justify-between items-start mt-4 px-4">
+              {/* QR gauche */}
+              {showQrCode ? (
+                <div className="w-16 h-16 bg-white rounded-md text-black text-xs flex items-center justify-center">
+                  <QrCode className="h-12 w-12" />
+                </div>
+              ) : (
+                <div className="w-16 h-16"></div>
+              )}
+
+              {/* Infos élève */}
+              <div className="flex-1 text-sm space-y-2 px-3 text-left">
+                <div>
+                  <span className="font-semibold block">Prénom :</span>
+                  <span>{firstName || "Victor"}</span>
+                </div>
+                <div>
+                  <span className="font-semibold block">Nom & Postnom :</span>
+                  <span>
+                    {lastName || "Doe"} {position || "Kabila"}
+                  </span>
+                </div>
+                <div className="flex flex-row justify-between">
+                <div>
+                  <span className="font-semibold block">Naissance :</span>
+                  <span>
+                    {birthplace || "Lieu"}, {birthday || "01/01/2010"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold block">Classe :</span>
+                  <span>{position || "6ème A"}</span>
+                </div>
+                </div>
+                <div>
+                  <span className="font-semibold block">Adresse :</span>
+                  <span>{etablissement || "Adresse élève"}</span>
+                </div>
+              </div>
+
+              {/* Photo droite */}
+              {photo ? (
+                <img
+                  src={photo}
+                  alt={firstName}
+                  className="w-20 h-24 bg-white rounded-md object-cover"
+                />
+              ) : (
+                <div className="w-20 h-24 bg-white rounded-md text-black text-xs flex items-center justify-center">
+                  Photo
+                </div>
+              )}
+            </div>
+
+            {/* --- Footer avec année scolaire + matricule --- */}
+            <div className="mt-4 bg-blue-900 py-3 text-center text-sm font-medium tracking-wide">
+              Année scolaire {new Date().getFullYear()}-{new Date().getFullYear() + 1} —{" "}
+              Matricule:{" "}
+              {matricule ||
+                `${etablissement?.substring(0, 5) || "ECOLE"}-${no || "00"}`}
+            </div>
+          </div>
+        );
+    default:
         return (
           <div className="bg-gray-100 p-6 rounded-lg text-center">
             <p className="text-gray-500">Sélectionnez un modèle</p>

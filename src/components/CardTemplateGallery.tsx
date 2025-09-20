@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
 import { CheckCircle } from 'lucide-react';
 
 type Template = {
@@ -62,7 +63,7 @@ const CardTemplateGallery: React.FC<CardTemplateGalleryProps> = ({
       name: 'Moderne',
       description: 'Design contemporain avec couleurs vives',
       preview: (
-        <div className="flex flex-col items-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 border rounded-md">
+        <div className="flex flex-col items-center p-4 bg-primary border rounded-md">
           <div className="w-16 h-16 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full mb-2"></div>
           <div className="w-24 h-3 bg-purple-200 rounded mb-1"></div>
           <div className="w-16 h-2 bg-pink-200 rounded"></div>
@@ -93,6 +94,39 @@ const CardTemplateGallery: React.FC<CardTemplateGalleryProps> = ({
           <div className="w-24 h-3 bg-orange-200 rounded mb-1"></div>
           <div className="w-16 h-2 bg-red-200 rounded"></div>
         </div>
+      ),
+    },
+    {
+      id: 'more',
+      name: 'Plus de modèle',
+      description: 'Créer plus de modèle en fonction de vos préférences',
+      preview: (
+        // <div className="flex flex-col items-center p-4 bg-black border rounded-md">
+        //   <Button className="w-16 h-16 bg-white rounded-lg mb-2 flex flex-col flex-row items-center justify-center"><span className='text-weight-bold text-primary'>+</span></Button>
+        // </div>
+        <div className="flex flex-col items-center p-6 bg-black border border-gray-800 rounded-xl shadow-lg group transition-all duration-200">
+  {/* Illustration style carte
+  <div className="mb-3">
+    <svg width="46" height="40" viewBox="0 0 46 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="6" width="38" height="28" rx="5" fill="#18181b" stroke="#6366f1" strokeWidth="2"/>
+      <rect x="10" y="12" width="26" height="16" rx="3" fill="#fff" stroke="#6366f1" strokeWidth="1.5"/>
+      <path d="M18 20L22 24L28 16" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </div> */}
+  {/* Bouton add */}
+  <button
+    className="
+      w-16 h-16 bg-gradient-to-tr from-indigo-500 to-blue-400 text-white rounded-lg shadow-md 
+      flex flex-col items-center justify-center mb-2 border-4 border-black group-hover:border-indigo-500
+      transition-all duration-200 scale-100 group-hover:scale-105 hover:shadow-xl
+      ring-2 ring-indigo-400/30
+    "
+  >
+    <span className="text-3xl font-extrabold drop-shadow-lg pointer-events-none">
+      +
+    </span>
+  </button>
+</div>
       ),
     },
   ];
