@@ -1,5 +1,6 @@
 
 import { QrCode } from "lucide-react";
+import FabricCardEditorWYSIWYG from "./FabricCardEditor";
 
 type CardPreviewProps = {
   template: string;
@@ -139,7 +140,7 @@ const CardPreview = ({
         );
       case "modern":
         return (
-          <div className="w-full h-56 bg-blue-700 text-white rounded-xl overflow-hidden shadow-lg flex flex-col">
+          <div className="w-full h-60 bg-blue-700 text-white rounded-xl overflow-hidden shadow-lg flex flex-col">
             {/* --- Bandeau tricolore --- */}
             <div className="grid grid-cols-3 h-3">
               <div className="bg-blue-600"></div>
@@ -148,7 +149,7 @@ const CardPreview = ({
             </div>
 
             {/* --- Logo + bannière --- */}
-            <div className="flex items-center justify-center mt-3 space-x-2 px-4">
+            <div className="flex items-center justify-center mt-1  px-1">
               {logo ? (
                 <img
                   src={logo}
@@ -164,7 +165,7 @@ const CardPreview = ({
             </div>
 
             {/* --- Infos élève + QR + Photo --- */}
-            <div className="flex justify-between items-start mt-4 px-4">
+            <div className="flex justify-between items-start px-2">
               {/* QR gauche */}
               {showQrCode ? (
                 <div className="w-16 h-16 bg-white rounded-md text-black text-xs flex items-center justify-center">
@@ -226,6 +227,10 @@ const CardPreview = ({
                 `${etablissement?.substring(0, 5) || "ECOLE"}-${no || "00"}`}
             </div>
           </div>
+        );
+    case "more": 
+        return (
+          <FabricCardEditorWYSIWYG  initialTemplate={template as any}/>
         );
     default:
         return (
