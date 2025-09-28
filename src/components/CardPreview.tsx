@@ -1,6 +1,8 @@
 
+import { Suspense, lazy } from "react";
 import { QrCode } from "lucide-react";
-import FabricCardEditorWYSIWYG from "./FabricCardEditor";
+
+const FabricCardEditorWYSIWYG = lazy(() => import("./FabricCardEditor"));
 
 type CardPreviewProps = {
   template: string;
@@ -230,7 +232,9 @@ const CardPreview = ({
         );
     case "more": 
         return (
-          <FabricCardEditorWYSIWYG  initialTemplate={template as any}/>
+          <Suspense fallback={<div className="w-full h-60 flex items-center justify-center bg-gray-100 rounded-lg"><p>Chargement de l'éditeur...</p></div>}>
+            <FabricCardEditorWYSIWYG  initialTemplate={template as any}/>
+          </Suspense>
         );
     default:
         return (

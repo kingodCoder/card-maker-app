@@ -75,7 +75,7 @@ const CardEditor: React.FC<CardEditorProps> = ({
 
     // Photo (si dispo)
     if (photo) {
-      fabric.Image.fromURL(photo, (img) => {
+       fabric.FabricImage.fromURL(photo, (img) => {
         img.set({
           left: 20,
           top: 30,
@@ -89,7 +89,7 @@ const CardEditor: React.FC<CardEditorProps> = ({
 
     // Logo
     if (logo) {
-      fabric.Image.fromURL(logo, (img) => {
+       fabric.FabricImage.fromURL(logo, (img) => {
         img.set({
           left: 320,
           top: 20,

@@ -31,6 +31,11 @@ const CreateCard = () => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
   const [showQrCode, setShowQrCode] = useState(false);
+  const [etablissement, setEtablissement] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [birthplace, setBirthplace] = useState("");
+  const [matricule, setMatricule] = useState("");
+  const [no, setNo] = useState<number>(0);
   
   // État pour la génération en masse
   const [bulkCards, setBulkCards] = useState<CardData[]>([]);
@@ -241,6 +246,59 @@ const CreateCard = () => {
                     </div>
                     
                     <div className="space-y-2">
+                        <Label htmlFor="etablissement">Établissement</Label>
+                        <Input
+                          id="etablissement"
+                          value={etablissement}
+                          onChange={(e) => setEtablissement(e.target.value)}
+                          placeholder="Établissement"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                        <Label htmlFor="birthday">Date de naissance</Label>
+                        <Input
+                            id="birthday"
+                            value={birthday}
+                            onChange={(e) => setBirthday(e.target.value)}
+                            placeholder="Date de naissance"
+                        />
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="birthplace">Lieu de naissance</Label>
+                        <Input
+                            id="birthplace"
+                            value={birthplace}
+                            onChange={(e) => setBirthplace(e.target.value)}
+                            placeholder="Lieu de naissance"
+                        />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="matricule">Matricule</Label>
+                            <Input
+                            id="matricule"
+                            value={matricule}
+                            onChange={(e) => setMatricule(e.target.value)}
+                            placeholder="Matricule"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="no">No</Label>
+                            <Input
+                            id="no"
+                            type="number"
+                            value={no}
+                            onChange={(e) => setNo(Number(e.target.value))}
+                            placeholder="No"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-2">
                       <Label htmlFor="photo">Photo</Label>
                       <Input
                         id="photo"
@@ -302,6 +360,11 @@ const CreateCard = () => {
                       photo={photo}
                       logo={logo}
                       showQrCode={showQrCode}
+                      etablissement={etablissement}
+                      birthday={birthday}
+                      birthplace={birthplace}
+                      matricule={matricule}
+                      no={no}
                     />
                   </div>
                 </div>
@@ -320,11 +383,16 @@ const CreateCard = () => {
                         firstName={firstName}
                         lastName={lastName}
                         position={position}
-                        photo={photo}
-                        logo={logo}
-                        showQrCode={showQrCode}
-                      />
-                    </div>
+                                              photo={photo}
+                                              logo={logo}
+                                              showQrCode={showQrCode}
+                                              etablissement={etablissement}
+                                              birthday={birthday}
+                              
+                                              birthplace={birthplace}
+                                              matricule={matricule}
+                                              no={no}
+                                              />                    </div>
                   </div>
                   
                   <div className="mt-8 flex justify-center space-x-4">
