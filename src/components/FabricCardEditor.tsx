@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import fabric from "fabric";
+import * as fabric from "fabric";   // ✅ Import correct pour Vite (CommonJS → ESM)
 
 type CardTemplate = "standard" | "premium" | "minimal" | "modern";
 
@@ -12,12 +12,14 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
 }) => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement>(null);
-  const [currentTemplate, setCurrentTemplate] = useState<CardTemplate>(initialTemplate);
+  const [currentTemplate, setCurrentTemplate] = useState<CardTemplate>(
+    initialTemplate
+  );
 
   // --- Initialisation du canvas Fabric ---
   useEffect(() => {
     if (!canvasElementRef.current) return;
-    
+
     const canvas = new fabric.Canvas(canvasElementRef.current, {
       width: 600,
       height: 350,
@@ -26,16 +28,14 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
     });
     canvasRef.current = canvas;
 
-    // Permettre redimensionnement & déplacement interactif
     canvas.on("object:modified", () => {
       console.log("Objet modifié !");
     });
 
-    // Nettoyage au démontage
     return () => {
       canvas.dispose();
     };
-  }, []); // Ne s'exécute qu'une fois
+  }, []);
 
   // --- Rechargement du template ---
   useEffect(() => {
@@ -50,8 +50,12 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
     if (!canvas) return;
     canvas.clear();
 
-    // Exemple simplifié : ajouter texte, image, QR code selon le template
-    const addText = (text: string, left: number, top: number, options: Partial<fabric.TOptions<fabric.Textbox>> = {}) => {
+    const addText = (
+      text: string,
+      left: number,
+      top: number,
+      options: Partial<fabric.ITextboxOptions> = {}
+    ) => {
       const txt = new fabric.Textbox(text, {
         left,
         top,
@@ -63,24 +67,37 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
       canvas.add(txt);
     };
 
-    const addImage = (url: string, left: number, top: number, width: number, height: number) => {
-      fabric.Image.fromURL(url, (img: fabric.FabricImage) => {
-        // Gérer le cas où l'image ne se charge pas
-        if (!img) {
-          console.error(`Impossible de charger l'image depuis : ${url}`);
-          // Optionnel : afficher un placeholder d'erreur
-          const errorRect = new fabric.Rect({ left, top, width, height, fill: "#f56565" });
-          canvas.add(errorRect);
+    const addImage = (
+      url: string,
+      left: number,
+      top: number,
+      width: number,
+      height: number
+    ) => {
+      fabric.Image.fromURL(
+        url,
+        (img) => {
+          if (!img) {
+            console.error(`Impossible de charger l'image depuis : ${url}`);
+            const errorRect = new fabric.Rect({
+              left,
+              top,
+              width,
+              height,
+              fill: "#f56565",
+            });
+            canvas.add(errorRect);
+            canvas.renderAll();
+            return;
+          }
+          img.set({ left, top, width, height, selectable: true });
+          canvas.add(img);
           canvas.renderAll();
-          return;
-        }
-        
-        img.set({ left, top, width, height, selectable: true });
-        canvas.add(img);
-        canvas.renderAll();
-      }, { crossOrigin: "anonymous" });
+        },
+        { crossOrigin: "anonymous" }
+      );
     };
-    
+
     const addQrCode = (left: number, top: number, size: number) => {
       const qrRect = new fabric.Rect({
         left,
@@ -98,7 +115,6 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
     switch (template) {
       case "standard":
         canvas.backgroundColor = "#fff";
-        canvas.renderAll();
         addText("Prénom : Victor", 20, 20);
         addText("Nom & Postnom : Doe Kabila", 20, 50);
         addText("Classe : 6ème A", 20, 80);
@@ -106,28 +122,22 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
         addQrCode(400, 240, 60);
         break;
 
+      case "premium":
         canvas.backgroundColor = "#f0f8ff";
-        canvas.renderAll();
-        canvas.backgroundColor = "#f0f8ff";
-        canvas.renderAll();
         addText("Prénom : Victor", 20, 20, { fill: "#1a202c" });
         addText("Nom & Postnom : Doe Kabila", 20, 50, { fill: "#1a202c" });
         addImage("https://via.placeholder.com/80x80", 400, 20, 80, 80);
         addQrCode(400, 240, 60);
         break;
-        canvas.backgroundColor = "#f9f9f9";
-        canvas.renderAll();
+
       case "minimal":
         canvas.backgroundColor = "#f9f9f9";
-        canvas.renderAll();
         addText("Prénom : Victor", 20, 20);
         addText("Nom & Postnom : Doe Kabila", 20, 50);
-        canvas.backgroundColor = "#1d4ed8";
-        canvas.renderAll();
+        break;
 
       case "modern":
         canvas.backgroundColor = "#1d4ed8";
-        canvas.renderAll();
         addText("Prénom : Victor", 20, 30, { fill: "#fff" });
         addText("Nom & Postnom : Doe Kabila", 20, 60, { fill: "#fff" });
         addQrCode(400, 20, 60);
@@ -156,11 +166,17 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
     canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
   };
 
-  // --- Ajouter élément dynamique ---
+  // --- Ajouter éléments dynamiques ---
   const addDynamicText = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const txt = new fabric.Textbox("Texte", { left: 50, top: 50, fontSize: 16, fill: "#000", selectable: true });
+    const txt = new fabric.Textbox("Texte", {
+      left: 50,
+      top: 50,
+      fontSize: 16,
+      fill: "#000",
+      selectable: true,
+    });
     canvas.add(txt);
   };
 
@@ -169,11 +185,23 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
     if (!canvas) return;
     const url = prompt("URL de l'image ?");
     if (url) {
-       fabric.FabricImage.fromURL(url, (img) => {
-        img.set({ left: 100, top: 100, width: 80, height: 80, selectable: true });
-        canvas.add(img);
-        canvas.renderAll();
-      }, { crossOrigin: "anonymous" });
+      fabric.Image.fromURL(
+        url,
+        (img) => {
+          if (img) {
+            img.set({
+              left: 100,
+              top: 100,
+              width: 80,
+              height: 80,
+              selectable: true,
+            });
+            canvas.add(img);
+            canvas.renderAll();
+          }
+        },
+        { crossOrigin: "anonymous" }
+      );
     }
   };
 
@@ -181,13 +209,18 @@ const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const size = 60;
-    const qrRect = new fabric.Rect({ left: 200, top: 50, width: size, height: size, fill: "#eee", stroke: "#000", strokeWidth: 1, selectable: true });
+    const qrRect = new fabric.Rect({
+      left: 200,
+      top: 50,
+      width: size,
+      height: size,
+      fill: "#eee",
+      stroke: "#000",
+      strokeWidth: 1,
+      selectable: true,
+    });
     canvas.add(qrRect);
   };
-
-  useEffect(() => {
-    loadTemplate(currentTemplate);
-  }, [currentTemplate]);
 
   return (
     <div>

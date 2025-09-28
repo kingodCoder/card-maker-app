@@ -1,4 +1,3 @@
-
 import { Suspense, lazy } from "react";
 import { QrCode } from "lucide-react";
 
@@ -33,13 +32,16 @@ const CardPreview = ({
   matricule,
   no
 }: CardPreviewProps) => {
+  // Constantes avec fallback
+  const fullName = `${firstName || "Prénom"} ${lastName || "Nom"}`;
+  const displayPosition = position || "Poste / Fonction";
+  const birth = `${birthplace || "Lieu"}, ${birthday || "Date de naissance"}`;
+  const matri = `${etablissement && etablissement.length > 5
+    ? etablissement.substring(0, 5)
+    : etablissement || "ECOLE"}-${no || "00"}`;
+
   // Rendu conditionnel basé sur le modèle sélectionné
   const renderCard = () => {
-    const fullName = `${firstName || "Prénom"} ${lastName || "Nom"}`;
-    const displayPosition = position || "Poste / Fonction";
-    const birth = `{birthplace||"Lieu"},{birthday||" et Date de naissance"}`;
-    const matri = `{etablissement.length>5?etablissement.substring(0,5):etablissement}-{no?no:"00"}`;
-
     switch (template) {
       case "standard":
         return (
@@ -75,6 +77,7 @@ const CardPreview = ({
             </div>
           </div>
         );
+
       case "premium":
         return (
           <div className="bg-gradient-to-r from-brand-50 to-brand-100 rounded-lg shadow-lg overflow-hidden w-full max-w-xs mx-auto border border-brand-200">
@@ -92,7 +95,7 @@ const CardPreview = ({
               )}
               <h3 className="text-xl font-bold text-brand-900">{fullName}</h3>
               <p className="text-brand-700">{displayPosition}</p>
-              
+
               {showQrCode && (
                 <div className="mt-4 mx-auto h-24 w-24 bg-white rounded-md p-2 flex items-center justify-center shadow-sm">
                   <QrCode className="h-16 w-16 text-brand-600" />
@@ -110,6 +113,7 @@ const CardPreview = ({
             </div>
           </div>
         );
+
       case "minimal":
         return (
           <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-xs mx-auto">
@@ -140,6 +144,7 @@ const CardPreview = ({
             )}
           </div>
         );
+
       case "modern":
         return (
           <div className="w-full h-60 bg-blue-700 text-white rounded-xl overflow-hidden shadow-lg flex flex-col">
@@ -151,7 +156,7 @@ const CardPreview = ({
             </div>
 
             {/* --- Logo + bannière --- */}
-            <div className="flex items-center justify-center mt-1  px-1">
+            <div className="flex items-center justify-center mt-1 px-1">
               {logo ? (
                 <img
                   src={logo}
@@ -185,21 +190,17 @@ const CardPreview = ({
                 </div>
                 <div>
                   <span className="font-semibold block">Nom & Postnom :</span>
-                  <span>
-                    {lastName || "Doe"} {position || "Kabila"}
-                  </span>
+                  <span>{lastName || "Doe"} {position || "Kabila"}</span>
                 </div>
                 <div className="flex flex-row justify-between">
-                <div>
-                  <span className="font-semibold block">Naissance :</span>
-                  <span>
-                    {birthplace || "Lieu"}, {birthday || "01/01/2010"}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold block">Classe :</span>
-                  <span>{position || "6ème A"}</span>
-                </div>
+                  <div>
+                    <span className="font-semibold block">Naissance :</span>
+                    <span>{birth}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold block">Classe :</span>
+                    <span>{position || "6ème A"}</span>
+                  </div>
                 </div>
                 <div>
                   <span className="font-semibold block">Adresse :</span>
@@ -223,20 +224,27 @@ const CardPreview = ({
 
             {/* --- Footer avec année scolaire + matricule --- */}
             <div className="mt-4 bg-blue-900 py-3 text-center text-sm font-medium tracking-wide">
-              Année scolaire {new Date().getFullYear()}-{new Date().getFullYear() + 1} —{" "}
-              Matricule:{" "}
-              {matricule ||
-                `${etablissement?.substring(0, 5) || "ECOLE"}-${no || "00"}`}
+              Année scolaire {new Date().getFullYear()}-
+              {new Date().getFullYear() + 1} — Matricule:{" "}
+              {matricule || matri}
             </div>
           </div>
         );
-    case "more": 
+
+      case "more":
         return (
-          <Suspense fallback={<div className="w-full h-60 flex items-center justify-center bg-gray-100 rounded-lg"><p>Chargement de l'éditeur...</p></div>}>
-            <FabricCardEditorWYSIWYG  initialTemplate={template as any}/>
+          <Suspense
+            fallback={
+              <div className="w-full h-60 flex items-center justify-center bg-gray-100 rounded-lg">
+                <p>Chargement de l'éditeur...</p>
+              </div>
+            }
+          >
+            <FabricCardEditorWYSIWYG initialTemplate={template as any} />
           </Suspense>
         );
-    default:
+
+      default:
         return (
           <div className="bg-gray-100 p-6 rounded-lg text-center">
             <p className="text-gray-500">Sélectionnez un modèle</p>

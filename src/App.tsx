@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +14,7 @@ import PreviewCard from "./pages/PreviewCard";
 import Pricing from "./pages/Pricing";
 import Features from "./pages/Features";
 import NotFound from "./pages/NotFound";
+import { initializeDefaultTemplates } from './lib/template-initializer';
 
 const queryClient = new QueryClient({
   defaultOptions: {
