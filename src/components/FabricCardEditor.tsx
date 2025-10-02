@@ -1,243 +1,172 @@
 import { useEffect, useRef, useState } from "react";
-import * as fabric from "fabric";   // ✅ Import correct pour Vite (CommonJS → ESM)
+import * as fabric from "fabric";
 
-type CardTemplate = "standard" | "premium" | "minimal" | "modern";
-
-interface FabricCardEditorProps {
-  initialTemplate?: CardTemplate;
-}
-
-const FabricCardEditorWYSIWYG: React.FC<FabricCardEditorProps> = ({
-  initialTemplate = "standard",
-}) => {
+const FabricCardEditor = () => {
   const canvasRef = useRef<fabric.Canvas | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement>(null);
-  const [currentTemplate, setCurrentTemplate] = useState<CardTemplate>(
-    initialTemplate
-  );
 
-  // --- Initialisation du canvas Fabric ---
+  const [history, setHistory] = useState<any[]>([]);
+  const [redoStack, setRedoStack] = useState<any[]>([]);
+
+  // Initialisation du canvas
   useEffect(() => {
     if (!canvasElementRef.current) return;
-
     const canvas = new fabric.Canvas(canvasElementRef.current, {
-      width: 600,
-      height: 350,
+      width: 800,
+      height: 500,
       backgroundColor: "#fff",
       selection: true,
     });
     canvasRef.current = canvas;
 
-    canvas.on("object:modified", () => {
-      console.log("Objet modifié !");
-    });
+    // Sauvegarder l’état à chaque modif
+    const saveState = () => {
+      setHistory((prev) => [...prev, canvas.toJSON()]);
+      setRedoStack([]);
+    };
+
+    canvas.on("object:added", saveState);
+    canvas.on("object:modified", saveState);
+    canvas.on("object:removed", saveState);
 
     return () => {
       canvas.dispose();
     };
   }, []);
 
-  // --- Rechargement du template ---
-  useEffect(() => {
-    if (canvasRef.current) {
-      loadTemplate(currentTemplate);
-    }
-  }, [currentTemplate]);
-
-  // --- Fonction pour charger un modèle existant ---
-  const loadTemplate = (template: CardTemplate) => {
+  // Annuler
+  const undo = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    canvas.clear();
+    if (!canvas || history.length === 0) return;
 
-    const addText = (
-      text: string,
-      left: number,
-      top: number,
-      options: Partial<fabric.ITextboxOptions> = {}
-    ) => {
-      const txt = new fabric.Textbox(text, {
-        left,
-        top,
-        fontSize: 16,
-        fill: "#000",
-        ...options,
-        selectable: true,
-      });
-      canvas.add(txt);
-    };
-
-    const addImage = (
-      url: string,
-      left: number,
-      top: number,
-      width: number,
-      height: number
-    ) => {
-      fabric.Image.fromURL(
-        url,
-        (img) => {
-          if (!img) {
-            console.error(`Impossible de charger l'image depuis : ${url}`);
-            const errorRect = new fabric.Rect({
-              left,
-              top,
-              width,
-              height,
-              fill: "#f56565",
-            });
-            canvas.add(errorRect);
-            canvas.renderAll();
-            return;
-          }
-          img.set({ left, top, width, height, selectable: true });
-          canvas.add(img);
-          canvas.renderAll();
-        },
-        { crossOrigin: "anonymous" }
-      );
-    };
-
-    const addQrCode = (left: number, top: number, size: number) => {
-      const qrRect = new fabric.Rect({
-        left,
-        top,
-        width: size,
-        height: size,
-        fill: "#eee",
-        stroke: "#000",
-        strokeWidth: 1,
-        selectable: true,
-      });
-      canvas.add(qrRect);
-    };
-
-    switch (template) {
-      case "standard":
-        canvas.backgroundColor = "#fff";
-        addText("Prénom : Victor", 20, 20);
-        addText("Nom & Postnom : Doe Kabila", 20, 50);
-        addText("Classe : 6ème A", 20, 80);
-        addImage("https://via.placeholder.com/80x100", 400, 20, 80, 100);
-        addQrCode(400, 240, 60);
-        break;
-
-      case "premium":
-        canvas.backgroundColor = "#f0f8ff";
-        addText("Prénom : Victor", 20, 20, { fill: "#1a202c" });
-        addText("Nom & Postnom : Doe Kabila", 20, 50, { fill: "#1a202c" });
-        addImage("https://via.placeholder.com/80x80", 400, 20, 80, 80);
-        addQrCode(400, 240, 60);
-        break;
-
-      case "minimal":
-        canvas.backgroundColor = "#f9f9f9";
-        addText("Prénom : Victor", 20, 20);
-        addText("Nom & Postnom : Doe Kabila", 20, 50);
-        break;
-
-      case "modern":
-        canvas.backgroundColor = "#1d4ed8";
-        addText("Prénom : Victor", 20, 30, { fill: "#fff" });
-        addText("Nom & Postnom : Doe Kabila", 20, 60, { fill: "#fff" });
-        addQrCode(400, 20, 60);
-        break;
-
-      default:
-        break;
-    }
-
-    canvas.renderAll();
+    const prevState = history[history.length - 1];
+    setRedoStack((r) => [...r, canvas.toJSON()]);
+    setHistory((h) => h.slice(0, -1));
+    canvas.loadFromJSON(prevState, () => canvas.renderAll());
   };
 
-  // --- Export JSON ---
-  const exportJSON = () => {
+  // Rétablir
+  const redo = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const json = canvas.toJSON();
-    console.log("Export JSON:", JSON.stringify(json));
-    return json;
+    if (!canvas || redoStack.length === 0) return;
+
+    const nextState = redoStack[redoStack.length - 1];
+    setRedoStack((r) => r.slice(0, -1));
+    setHistory((h) => [...h, canvas.toJSON()]);
+    canvas.loadFromJSON(nextState, () => canvas.renderAll());
   };
 
-  // --- Import JSON ---
-  const importJSON = (json: any) => {
+  // Supprimer
+  const removeSelected = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+    const active = canvas.getActiveObjects();
+    active.forEach((obj) => canvas.remove(obj));
+    canvas.discardActiveObject().renderAll();
   };
 
-  // --- Ajouter éléments dynamiques ---
-  const addDynamicText = () => {
+  // Ajouter texte
+  const addText = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const txt = new fabric.Textbox("Texte", {
       left: 50,
       top: 50,
-      fontSize: 16,
+      fontSize: 20,
       fill: "#000",
-      selectable: true,
     });
     canvas.add(txt);
   };
 
-  const addDynamicImage = () => {
+  // Ajouter rectangle
+  const addRectangle = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const url = prompt("URL de l'image ?");
-    if (url) {
-      fabric.Image.fromURL(
-        url,
-        (img) => {
-          if (img) {
-            img.set({
-              left: 100,
-              top: 100,
-              width: 80,
-              height: 80,
-              selectable: true,
-            });
-            canvas.add(img);
-            canvas.renderAll();
-          }
-        },
-        { crossOrigin: "anonymous" }
-      );
-    }
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      width: 150,
+      height: 100,
+      fill: "#3498db",
+      rx: 10, // arrondi
+      ry: 10,
+    });
+    canvas.add(rect);
   };
 
-  const addDynamicQr = () => {
+  // Ajouter cercle
+  const addCircle = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const size = 60;
-    const qrRect = new fabric.Rect({
+    const circle = new fabric.Circle({
       left: 200,
-      top: 50,
-      width: size,
-      height: size,
-      fill: "#eee",
-      stroke: "#000",
-      strokeWidth: 1,
-      selectable: true,
+      top: 200,
+      radius: 60,
+      fill: "#e74c3c",
     });
-    canvas.add(qrRect);
+    canvas.add(circle);
+  };
+
+  // Changer la couleur de l’élément sélectionné
+  const changeColor = (color: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const active = canvas.getActiveObjects();
+    active.forEach((obj) => {
+      if ("set" in obj) {
+        obj.set("fill", color);
+      }
+    });
+    canvas.renderAll();
+  };
+
+  // Définir couleur de fond
+  const setBackgroundColor = (color: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
+  };
+
+  // Définir image de fond
+  const setBackgroundImage = (url: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    fabric.Image.fromURL(url, (img) => {
+      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+        scaleX: canvas.width! / img.width!,
+        scaleY: canvas.height! / img.height!,
+      });
+    });
   };
 
   return (
     <div>
-      <h2>Éditeur WYSIWYG Fabric</h2>
-      <div className="flex space-x-2 mb-2">
-        <button onClick={() => setCurrentTemplate("standard")}>Standard</button>
-        <button onClick={() => setCurrentTemplate("premium")}>Premium</button>
-        <button onClick={() => setCurrentTemplate("minimal")}>Minimal</button>
-        <button onClick={() => setCurrentTemplate("modern")}>Modern</button>
-        <button onClick={exportJSON}>Exporter JSON</button>
-        <button onClick={addDynamicText}>Ajouter texte</button>
-        <button onClick={addDynamicImage}>Ajouter image</button>
-        <button onClick={addDynamicQr}>Ajouter QR</button>
+      <h2>Éditeur façon Canva</h2>
+      <div className="flex flex-wrap gap-2 mb-3">
+        <button onClick={addText}>+ Texte</button>
+        <button onClick={addRectangle}>+ Rectangle</button>
+        <button onClick={addCircle}>+ Cercle</button>
+        <button onClick={removeSelected}>Supprimer</button>
+        <button onClick={undo}>↶ Annuler</button>
+        <button onClick={redo}>↷ Rétablir</button>
+        <input
+          type="color"
+          onChange={(e) => changeColor(e.target.value)}
+          title="Couleur de l'objet"
+        />
+        <input
+          type="color"
+          onChange={(e) => setBackgroundColor(e.target.value)}
+          title="Couleur du fond"
+        />
+        <button onClick={() => {
+          const url = prompt("URL de l'image de fond ?");
+          if (url) setBackgroundImage(url);
+        }}>Image de fond</button>
       </div>
       <canvas ref={canvasElementRef} style={{ border: "1px solid #ccc" }} />
     </div>
   );
 };
 
-export default FabricCardEditorWYSIWYG;
+export default FabricCardEditor;
