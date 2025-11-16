@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import CardTemplateGallery from "@/components/CardTemplateGallery";
 import CardPreview from "@/components/CardPreview";
 import CSVUpload from "@/components/CSVUpload";
+import CardModelEditor from "@/components/CardModelEditor";
 import { useToast } from "@/hooks/use-toast";
 import { generatePDF, generatePNG, generateBulkPDFs, CardData } from "@/utils/pdfGenerator";
 
@@ -183,13 +184,26 @@ const CreateCard = () => {
           </div>
           
           <Tabs value={currentStep} onValueChange={setCurrentStep} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
-              <TabsTrigger value="template">1. Choix du modèle</TabsTrigger>
-              <TabsTrigger value="personalization">2. Personnalisation</TabsTrigger>
-              <TabsTrigger value="preview">3. Aperçu final</TabsTrigger>
-              <TabsTrigger value="bulk">4. Génération en masse</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5 mb-8">
+              <TabsTrigger value="editor">1. Éditeur de modèle</TabsTrigger>
+              <TabsTrigger value="template">2. Choix du modèle</TabsTrigger>
+              <TabsTrigger value="personalization">3. Personnalisation</TabsTrigger>
+              <TabsTrigger value="preview">4. Aperçu final</TabsTrigger>
+              <TabsTrigger value="bulk">5. Génération en masse</TabsTrigger>
             </TabsList>
             
+            <TabsContent value="editor">
+              <CardModelEditor />
+              <div className="mt-8 flex justify-end">
+                  <Button 
+                    onClick={() => setCurrentStep("template")}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    Continuer
+                  </Button>
+                </div>
+            </TabsContent>
+
             <TabsContent value="template" className="space-y-6">
               <div className="bg-white p-6 rounded-lg shadow-sm border">
                 <h2 className="text-xl font-medium mb-4">Choisissez un modèle</h2>
@@ -197,7 +211,13 @@ const CreateCard = () => {
                   selectedTemplate={template}
                   onSelectTemplate={setTemplate}
                 />
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8 flex justify-between">
+                  <Button 
+                      variant="outline" 
+                      onClick={() => setCurrentStep("editor")}
+                    >
+                      Retour
+                    </Button>
                   <Button 
                     onClick={() => setCurrentStep("personalization")}
                     className="bg-primary hover:bg-primary/90"
