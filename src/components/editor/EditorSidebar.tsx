@@ -1,30 +1,28 @@
-import React from "react";
+import { Square, Type, Image, Layers, Settings } from "lucide-react";
+
+const items = [
+  { icon: Square, label: "Design" },
+  { icon: Layers, label: "Elements" },
+  { icon: Type, label: "Text" },
+  { icon: Image, label: "Import" },
+  { icon: Settings, label: "Apps" },
+];
 
 const EditorSidebar = () => {
   return (
-    <aside className="w-60 bg-white border-r h-full flex flex-col">
-      <div className="p-4 font-semibold border-b">
-        Outils
-      </div>
+    <div className="w-20 bg-gradient-to-b from-[#1f2328] to-[#2b2f33] flex flex-col items-center py-4 gap-6 border-r border-black/30">
 
-      <nav className="flex-1 p-2 space-y-2 text-sm">
-        <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100">
-          Design
+      {items.map((item, i) => (
+        <button
+          key={i}
+          className="flex flex-col items-center gap-1 text-gray-300 hover:text-white transition"
+        >
+          <item.icon size={22} />
+          <span className="text-xs">{item.label}</span>
         </button>
-        <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100">
-          Éléments
-        </button>
-        <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100">
-          Texte
-        </button>
-        <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100">
-          Images
-        </button>
-        <button className="w-full text-left px-3 py-2 rounded hover:bg-gray-100">
-          Couleurs
-        </button>
-      </nav>
-    </aside>
+      ))}
+
+    </div>
   );
 };
 

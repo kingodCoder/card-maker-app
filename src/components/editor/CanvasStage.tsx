@@ -28,9 +28,9 @@ const CanvasStage: React.FC<Props> = ({ width, height }) => {
   }, [width, height]);
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-[#f3f4f6]">
-      <div className="p-8 bg-[#f3f4f6]">
-        <canvas ref={canvasEl} className="shadow-xl rounded-md" />
+    <div className="flex items-center justify-center w-full h-full">
+      <div className="bg-white rounded-xl shadow-2xl p-6">
+        <canvas ref={canvasEl} />
       </div>
     </div>
   );
