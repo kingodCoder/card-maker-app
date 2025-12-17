@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import CreateCard from "./pages/CreateCard";
 import PreviewCard from "./pages/PreviewCard";
+import CardEditor from "@/pages/CardEditor";
 import Pricing from "./pages/Pricing";
 import Features from "./pages/Features";
 import NotFound from "./pages/NotFound";
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-card" element={<CreateCard />} />
             <Route path="/preview-card" element={<PreviewCard />} />
+            <Route path="/card-editor" element={<CardEditor />} />
             <Route path="/tarifs" element={<Pricing />} />
             <Route path="/fonctionnalites" element={<Features />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -1,0 +1,269 @@
+Parfait. Je vais te fournir **un plan d’architecture complet, structuré et réaliste**, que tu peux suivre **à la lettre**, pour intégrer **cet éditeur Canva-like (mockup ci-dessus)** dans **ton application actuelle**, sans casser l’existant (CreateCard, Dashboard, logique métier).
+
+Je vais procéder comme un **architecte logiciel**, pas comme un simple générateur de code.
+
+---
+
+# 1. OBJECTIF FINAL (ce que tu veux atteindre)
+
+À la fin, ton application doit permettre :
+
+1. **Choix du format de carte AVANT l’édition** (comme Canva)
+2. **Ouverture d’un éditeur plein écran**, inspiré du mockup
+3. **Éditeur Fabric.js fonctionnel**
+
+   * Texte, formes, images
+   * Couleurs, arrondis, opacité
+   * Undo / Redo
+   * Calques
+4. **Templates de cartes**
+
+   * Un template de base (celui de la carte élève fournie)
+   * Templates sauvegardés
+5. **Création de cartes à partir d’un template**
+6. **Stockage local robuste (IndexedDB)**
+7. **Dashboard**
+
+   * Affichage max 100 cartes
+   * Pagination
+   * Corbeille (30 jours)
+   * Suppression définitive (90 jours)
+8. **Page Paramètres**
+
+   * Durées, limites, nettoyage auto
+
+---
+
+# 2. STACK TECHNIQUE À SUIVRE (OBLIGATOIRE)
+
+### Frontend
+
+* **React 18**
+* **TypeScript**
+* **Vite**
+* **Tailwind CSS**
+* **React Router**
+
+### Éditeur
+
+* **fabric.js (v5+)**
+* **jspdf** (export PDF)
+* **idb** (wrapper IndexedDB)
+
+### Stockage
+
+| Usage         | Technologie |
+| ------------- | ----------- |
+| Templates     | IndexedDB   |
+| Cartes créées | IndexedDB   |
+| Corbeille     | IndexedDB   |
+| Paramètres    | IndexedDB   |
+| Session UI    | React state |
+
+❌ **localStorage exclu**
+✅ **IndexedDB = choix correct** (tu as eu raison)
+
+---
+
+# 3. ARCHITECTURE DES DOSSIERS (À RESPECTER)
+
+```
+src/
+├── components/
+│   ├── editor/
+│   │   ├── EditorLayout.tsx        ← Shell principal (mockup)
+│   │   ├── EditorToolbar.tsx       ← Barre du haut (File / Resize / Download)
+│   │   ├── EditorSidebar.tsx       ← Barre gauche (Design, Text, Elements…)
+│   │   ├── CanvasStage.tsx         ← Canvas Fabric.js
+│   │   ├── panels/
+│   │   │   ├── DesignPanel.tsx
+│   │   │   ├── ElementsPanel.tsx
+│   │   │   ├── TextPanel.tsx
+│   │   │   ├── ImportPanel.tsx
+│   │   │   ├── ColorsPanel.tsx
+│   │   │   ├── LayersPanel.tsx
+│   │   │   ├── ToolsPanel.tsx
+│   │   ├── hooks/
+│   │   │   ├── useFabricEditor.ts  ← API Fabric centralisée
+│   │   │   ├── useHistory.ts       ← Undo / Redo
+│   │   │   ├── db.ts               ← IndexedDB
+│   │   │   ├── useSettings.ts
+│   │
+├── pages/
+│   ├── CreateCard.tsx              ← Choix format + bouton “Créer”
+│   ├── CardEditor.tsx              ← Page plein écran
+│   ├── Dashboard.tsx               ← Liste des cartes
+│   ├── Settings.tsx                ← Paramètres
+│
+├── models/
+│   ├── Card.ts
+│   ├── Template.ts
+│   ├── Settings.ts
+```
+
+---
+
+# 4. RÔLE DE CHAQUE PAGE (CLÉ DU SUCCÈS)
+
+## 🔹 CreateCard.tsx (AVANT l’éditeur)
+
+**Rôle :**
+
+* Choix du format :
+
+  * Carte élève (PVC)
+  * Badge
+  * Carte carrée
+  * Format personnalisé
+* Choix :
+
+  * Nouveau template
+  * À partir d’un template existant
+
+**Ce que CreateCard NE DOIT PAS faire :**
+❌ Aucune logique Fabric
+❌ Aucun canvas
+
+➡️ **Il redirige uniquement vers `/card-editor`**
+
+---
+
+## 🔹 CardEditor.tsx (PLEIN ÉCRAN)
+
+**Rôle :**
+
+* Monter l’éditeur Canva-like
+* Charger :
+
+  * un template
+  * ou une carte existante
+* Bloquer le reste de l’UI
+
+```tsx
+<EditorLayout
+  templateId={...}
+  cardId={...}
+  onClose={() => navigate(-1)}
+/>
+```
+
+---
+
+## 🔹 EditorLayout.tsx (CŒUR DU MOCKUP)
+
+Correspond **exactement à l’image fournie** :
+
+* Top bar (File / Resize / Download)
+* Sidebar gauche
+* Panneau contextuel
+* Zone canvas centrée
+
+👉 **Aucune logique métier ici**
+👉 Il orchestre les composants
+
+---
+
+## 🔹 useFabricEditor.ts (PIÈCE MAÎTRESSE)
+
+**Une seule source de vérité**
+
+Expose une API claire :
+
+```ts
+addText()
+addRect()
+addCircle()
+addImage()
+setFillColor()
+setRadius()
+undo()
+redo()
+exportPNG()
+exportPDF()
+loadFromJSON()
+toJSON()
+```
+
+➡️ **Aucun composant n’accède directement à fabric.Canvas**
+
+---
+
+# 5. LOGIQUE DES TEMPLATES (IMPORTANT)
+
+### Template = référence
+
+```ts
+{
+  id,
+  name,
+  canvasJSON,
+  thumbnail,
+  createdAt
+}
+```
+
+### Carte = instance
+
+```ts
+{
+  id,
+  templateId,
+  canvasJSON,
+  studentData?,
+  createdAt
+}
+```
+
+➡️ Tu peux générer :
+
+* 1 carte
+* 100 cartes
+* 1 000 cartes
+  **sans toucher au template**
+
+---
+
+# 6. DASHBOARD (SANS LE CASSER)
+
+### Ce que tu ajoutes seulement :
+
+* Lecture IndexedDB
+* Pagination (20 / page)
+* Limite max = 100 cartes
+* Boutons :
+
+  * Modifier
+  * Supprimer (→ corbeille)
+
+### Corbeille
+
+* Après 30 jours → visible “Corbeille”
+* Après 90 jours → suppression auto
+
+➡️ Nettoyage déclenché :
+
+* au chargement du Dashboard
+* ou via un cron JS léger
+
+---
+
+# 7. PAGE PARAMÈTRES
+
+Permet de configurer :
+
+* Nombre max de cartes (default 100)
+* Durée avant corbeille (30j)
+* Durée avant suppression (90j)
+* Activer / désactiver auto-clean
+
+Stocké dans IndexedDB (`settings`)
+
+---
+
+# 8. RÈGLES D’OR (À NE PAS VIOLER)
+
+1. ❌ **Ne jamais importer fabric directement dans un composant UI**
+2. ❌ **Ne jamais stocker de canvas dans localStorage**
+3. ✅ **Toujours passer par l’API du hook**
+4. ✅ **Un fichier = une responsabilité**
+5. ✅ **L’éditeur est isolé du reste de l’app**
